@@ -15,6 +15,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import Papa from 'papaparse';
 import ThemeSwitch from './components/ThemeSwitch';
+import { useDropzone } from 'react-dropzone';
 
 // Registering the chart.js components we're going to use
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -102,20 +103,26 @@ export default function Page() {
 		]
 	});
 
-	// Handler function to process file upload
-	const handleUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const files = event.target.files;
-		if (files && files[0]) {
-			console.log('File selected for upload:', files[0].name); // Log file name
-			const reader = new FileReader();
-			reader.onload = (e: ProgressEvent<FileReader>) => {
-				const text = e.target?.result;
-				console.log('File content:', text); // Log raw file content
-				parseCsv(text as string);
-			};
-			reader.readAsText(files[0]);
+
+	const onDrop = React.useCallback((acceptedFiles: File[]) => {
+		const file = acceptedFiles[0]; // Assuming only one file is uploaded
+		console.log('File selected for upload:', file.name); // Log file name
+		const reader = new FileReader();
+		reader.onload = (e: ProgressEvent<FileReader>) => {
+			const text = e.target?.result;
+			console.log('File content:', text); // Log raw file content
+			parseCsv(text as string);
+		};
+		reader.readAsText(file);
+	}, []);
+
+
+	const { getRootProps, getInputProps, isDragActive } = useDropzone({
+		onDrop,
+		accept: {
+			'text/csv': ['.csv']
 		}
-	};
+	});
 
 	// Function to parse CSV data and update chart data
 	const parseCsv = (data: string) => {
@@ -162,7 +169,7 @@ export default function Page() {
 	// Updated options with dynamic max value for y-axis
 	const updatedOptions = {
 		...options,
-		maintainAspectRatio: false,
+		maintainAspectRatio: true,
 		scales: {
 			...options.scales,
 			y: {
@@ -181,16 +188,16 @@ export default function Page() {
 	return (
 		<div>
 			<div className={csvData.length > 0 ? 'flex justify-between px-8 mb-4 py-4 rounded-lg ring-1 ring-slate-900/5 shadow-xl' : 'flex justify-between'}>
-				<input
-					type="file"
-					accept=".csv"
-					onChange={handleUpload}
-				/>
+				<div {...getRootProps()} className="dropzone">
+					<input {...getInputProps()} />
+					{isDragActive ? <p>Drop the files here ...</p> : <p>Drag 'n' drop some files here, or click to select files</p>}
+				</div>
 				<ThemeSwitch />
 			</div>
 			<div>
-				{csvData.length > 0 ? <Line options={updatedOptions} data={chartData} width='80%' height={700} /> : <div></div>}
+				{csvData.length > 0 ? <Line options={options} data={chartData} /> : <div></div>} {}
 			</div>
 		</div>
+
 	);
 }
