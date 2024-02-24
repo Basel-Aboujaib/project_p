@@ -6,63 +6,11 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 import { Line } from 'react-chartjs-2';
 import Papa from 'papaparse';
 import ThemeSwitch from './components/ThemeSwitch';
+import { chartOptions, CsvData } from './chartConfig';
 import { useDropzone } from 'react-dropzone';
 
 // Registering the chart.js components we're going to use
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
-
-interface CsvData {
-	time: number;
-	gaugepressure: number;
-	manifoldpressure: number;
-	wgdc: number;
-}
-
-// Updated options for the chart with multi-axis configuration
-const options = {
-	responsive: true,
-	interaction: {
-		mode: 'index' as const,
-		intersect: false,
-	},
-	stacked: true,
-	plugins: {
-		title: {
-			display: true,
-			text: 'CSV Data Chart - Multi Axis',
-		},
-	},
-	scales: {
-		x: {
-			type: 'linear' as const,
-			title: {
-				display: true,
-				text: 'Time (s)', // Label for the X-axis
-			},
-		},
-		y: {
-			type: 'linear' as const,
-			display: true,
-			position: 'left' as const,
-			title: {
-				display: true,
-				text: 'Pressure (psi)',
-			},
-		},
-		y1: {
-			type: 'linear' as const,
-			display: true,
-			position: 'right' as const,
-			title: {
-				display: true,
-				text: 'WGDC (%)',
-			},
-			grid: {
-				drawOnChartArea: false, // to only draw the grid lines for one axis
-			},
-		},
-	},
-};
 
 export default function Page() {
 	const [csvData, setCsvData] = React.useState<CsvData[]>([]);
@@ -72,8 +20,8 @@ export default function Page() {
 			{
 				label: 'Gauge Pressure',
 				data: [],
-				borderColor: 'rgb(255, 99, 132)',
-				backgroundColor: 'rgba(255, 99, 132, 0.5)',
+				borderColor: 'rgb(99, 255, 161)',
+				backgroundColor: 'rgba(99, 255, 161, 0.5)',
 				yAxisID: 'y',
 			},
 			{
@@ -142,19 +90,19 @@ export default function Page() {
 		});
 	};
 
-// this div needs to expand to the whole viewport for dropzone to work everywhere
+	// this div needs to expand to the whole viewport for dropzone to work everywhere
 
 	return (
-		<div {...getRootProps()} className="min-h-screen w-full"> 
+		<div {...getRootProps()} className="min-h-screen w-full">
 			<input {...getInputProps()} />
 			{isDragActive && (
-				<div className="overlay flex justify-center items-center absolute top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 z-50">
+				<div className="overlay flex justify-center items-center absolute top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 z-50">
 					<p>Drop the files here...</p>
 				</div>
 			)}
 			<div className="container mx-auto px-4">
 				<ThemeSwitch />
-				{csvData.length > 0 && <Line options={options} data={chartData} />}
+				{csvData.length > 0 && <Line options={chartOptions} data={chartData} />}
 			</div>
 		</div>
 	);
