@@ -1,13 +1,14 @@
 import { ChartOptions } from 'chart.js';
+import { lightModeColors, darkModeColors } from '../styles/themecolours';
 
 export interface CsvData {
     time: number;
     gaugepressure: number;
-    manifoldpressure: number;
     wgdc: number;
 }
 
-export const chartOptions: ChartOptions<'line'> = {
+// chartOptions is now a function that accepts theme as a param
+export const getChartOptions = (theme: string): ChartOptions<'line'> => ({
     responsive: true,
     interaction: {
         mode: 'index',
@@ -16,15 +17,19 @@ export const chartOptions: ChartOptions<'line'> = {
     plugins: {
         title: {
             display: true,
-            text: 'Graph',
+            text: 'Project P',
+            padding: 30,
+            color: theme === 'dark' ? darkModeColors.titleColor : lightModeColors.titleColor,
+
         },
     },
+
     scales: {
         x: {
             type: 'linear',
             title: {
                 display: true,
-                text: 'Time (s)',
+                text: 'Time (ms)',
             },
         },
         y: {
@@ -36,16 +41,27 @@ export const chartOptions: ChartOptions<'line'> = {
                 text: 'Pressure (psi)',
             },
             grid: {
-                drawOnChartArea: true,
                 color: function (context) {
                     if (context.tick.value !== 0) {
-                        return 'rgb(125, 125, 125, 0.1)';
+                        return theme === 'dark' ? darkModeColors.gridColor : lightModeColors.gridColor;
                     } else {
                         return 'rgb(125, 125, 125)';
                     }
                 },
-                tickBorderDash: [1],
             },
+            border: {
+                dash: function (context) {
+                if (context.tick.value !== 0) {
+                        return [0];
+                    } else {
+                        return [6];
+                    }
+                }
+
+            },
+
+
+
         },
         y1: {
             type: 'linear',
@@ -60,4 +76,4 @@ export const chartOptions: ChartOptions<'line'> = {
             },
         },
     },
-};
+});
